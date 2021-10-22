@@ -34,13 +34,14 @@ def get_ec2_eni():
                 "AvailabilityZone": network_interface["AvailabilityZone"],
                 "Description": network_interface["Description"]
             }
+        return eni
         
     except:
         print("Exception Occured at get_ec2_eni")
 
 #print(dumps(get_ec2_eni(), indent=4, sort_keys=True))
 
-    return eni
+
 def get_vpn():
     try:
         for vpn_gateway in vpc_client.describe_vpn_gateways()["VpnGateways"]:
@@ -48,20 +49,48 @@ def get_vpn():
                 "AvailabilityZone" : vpn_gateway["AvailabilityZone"],
                 "VpcAttachments" : vpn_gateway["VpcAttachments"]
             }
+        return vpns
+
     except:
         print("Exception Occured get_vpn()")
 
-    return vpns
+
+def get_nacl():
+    nacls = {}
+    try:
+        for nacl in vpc_client.describe_network_acls()["NetworkAcls"]:
+            nacls[nacl["NetworkAclId"]]= {
+                "ACLID": nacl["NetworkAclId"]
+            }
+        return nacls
+    except:
+        print("Exception get_nacl()")
+
+
+def get_route_tables():
+    try:
+        for route_table in vpc_client.describe_route_tables()["RouteTables"]:
+            pass
+    except:
+        print("Exception Occured get_route_table()")
+
+def get_security_groups():
+    try:
+        for security_group in vpc_client.describe_security_groups()["SecurityGroups"]:
+            pass
+    except:
+        print("Exception Occured at get_security_groups()")
+
 
 #def get_tgw():
 #    try:
 #        for tgw in vpc_client.describe
 
 # print(dumps(get_vpn(), indent=4, sort_keys=True))
-data = dumps(get_ec2_eni(), indent=4, sort_keys=True)
+# data = dumps(get_ec2_eni(), indent=4, sort_keys=True)
 
-if __name__ == "__main__":
-   print(data)
+# if __name__ == "__main__":
+#    print(data)
 
 
 
