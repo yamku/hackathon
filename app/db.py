@@ -1,9 +1,6 @@
 from botocore.config import Config
 import boto3
 from json import dumps,loads
-from pyvis.network import Network
-import pandas as pd
-import sys
 
 
 my_config = Config(
@@ -16,13 +13,10 @@ my_config = Config(
 )
 
 vpc_client = boto3.client('ec2', config = my_config)
-ddb = boto3.resource('dynamodb')
-net = Network(notebook=True)
 
-eni = {}
-vpns = {}
 
 def get_ec2_eni():
+    eni = {}
     try:
         for network_interface in vpc_client.describe_network_interfaces()["NetworkInterfaces"]:
             # print(eni)
@@ -43,6 +37,7 @@ def get_ec2_eni():
 
 
 def get_vpn():
+    vpns = {}
     try:
         for vpn_gateway in vpc_client.describe_vpn_gateways()["VpnGateways"]:
             vpns[vpn_gateway["VpnGatewayId"]] = {
@@ -60,7 +55,9 @@ def get_nacl():
     try:
         for nacl in vpc_client.describe_network_acls()["NetworkAcls"]:
             nacls[nacl["NetworkAclId"]]= {
-                "ACLID": nacl["NetworkAclId"]
+                "ACLID": nacl["NetworkAclId"],
+                "Associations": nacl["Associations"],
+                "Entries" : nacl["Entries"]
             }
         return nacls
     except:
@@ -69,15 +66,27 @@ def get_nacl():
 
 def get_route_tables():
     try:
+        route_tables = {}
         for route_table in vpc_client.describe_route_tables()["RouteTables"]:
-            pass
+            route_tables[route_table["RouteTableId"]] = {
+                "TabledId" : route_table["RouteTableId"],
+                "Routes" : route_table["Routes"]
+            }
+        return route_tables
     except:
         print("Exception Occured get_route_table()")
 
 def get_security_groups():
     try:
+        security_groups = {}
         for security_group in vpc_client.describe_security_groups()["SecurityGroups"]:
-            pass
+            security_groups[security_group["GroupId"]] = {
+                "SecurityGroupId": security_group["GroupId"],
+                "IpPermissions" : security_group["IpPermissions"],
+                "IpPermissionsEgress" : security_group["IpPermissionsEgress"],
+                "Description" : security_group["Description"]
+            }
+        return security_groups
     except:
         print("Exception Occured at get_security_groups()")
 
